@@ -1,0 +1,74 @@
+-- Database: OldSchoolPGDataBase
+
+-- DROP DATABASE IF EXISTS "OldSchoolPGDataBase";
+
+/*
+CREATE DATABASE "OldSchoolPGDataBase"
+    WITH
+    OWNER = postgres
+    ENCODING = 'UTF8'
+    LC_COLLATE = 'Ukrainian_Ukraine.1251'
+    LC_CTYPE = 'Ukrainian_Ukraine.1251'
+    TABLESPACE = pg_default
+    CONNECTION LIMIT = -1
+    IS_TEMPLATE = False;
+*/
+
+DROP DOMAIN IF EXISTS OSdomNonNeg CASCADE;
+
+CREATE DOMAIN OSdomNonNeg AS 
+INT NOT NULL CHECK (VALUE >= 0);
+
+DROP DOMAIN IF EXISTS OSdomUT CASCADE;
+
+CREATE DOMAIN OSdomUT AS 
+VARCHAR(50) CHECK (VALUE IN ('Sys','Guest','SysTest'));
+
+DROP DOMAIN IF EXISTS OSdomG CASCADE;
+
+CREATE DOMAIN OSdomG AS 
+VARCHAR(50) CHECK (VALUE IN ('Sys', 'SysTest'));
+
+
+DROP TABLE IF EXISTS OSUser CASCADE;
+
+CREATE TABLE OSUser (
+	id OSdomNonNeg PRIMARY KEY,
+	user_name VARCHAR(50) UNIQUE,
+    user_password VARCHAR(50) NOT NULL,
+	stype OSdomUT NOT NULL,
+	user_score OSdomNonNeg NOT NULL
+);
+
+DROP TABLE IF EXISTS OSGame CASCADE;
+
+CREATE TABLE OSGame (
+	id OSdomNonNeg PRIMARY KEY,
+	game_name VARCHAR(50) NOT NULL,
+	stype OSdomG NOT NULL
+);
+
+DROP TABLE IF EXISTS OSRating;
+
+CREATE TABLE OSRating (
+	game_id OSdomNonNeg,
+	user_id OSdomNonNeg,
+    FOREIGN KEY (game_id) REFERENCES OSGame(id),
+	FOREIGN KEY (user_id) REFERENCES OSUser(id),
+	game_score OSdomNonNeg NOT NULL
+);
+
+INSERT INTO OSUser VALUES (10100, 'Helmyt','NewPassWord123', 'Sys', 0);
+INSERT INTO OSUser VALUES (10101, 'Borys','NewPassWord123', 'Sys', 0);
+INSERT INTO OSUser VALUES (10102, 'Mychaylo','NewPassWord123', 'Sys', 0);
+
+INSERT INTO OSGame VALUES (10, 'Snake', 'Sys');
+INSERT INTO OSGame VALUES (11, 'Tetris', 'Sys');
+
+INSERT INTO OSRating VALUES (10, 10100, 100);
+INSERT INTO OSRating VALUES (10, 10101, 1000);
+INSERT INTO OSRating VALUES (10, 10102, 500);
+INSERT INTO OSRating VALUES (11, 10100, 500);
+INSERT INTO OSRating VALUES (11, 10101, 600);
+INSERT INTO OSRating VALUES (11, 10102, 300);
+
